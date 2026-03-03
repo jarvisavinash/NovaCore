@@ -1,0 +1,12 @@
+# Build folders
+bin/
+obj/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+
+# Logs
+*.log

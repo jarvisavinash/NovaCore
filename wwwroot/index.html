@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NovaCore AI</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background: radial-gradient(circle at center, #0a0f1c 0%, #000 70%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+            color: #ffae00;
+        }
+
+        .container {
+            text-align: center;
+            z-index: 1;
+        }
+
+        .core-wrapper {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+        }
+
+        .ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid rgba(255,174,0,0.6);
+            animation: rotate 12s linear infinite;
+            box-shadow: 0 0 25px #ffae00;
+        }
+
+        .ring:nth-child(2) {
+            width: 240px;
+            height: 240px;
+            top: 30px;
+            left: 30px;
+            animation-duration: 8s;
+            animation-direction: reverse;
+        }
+
+        .ring:nth-child(3) {
+            width: 180px;
+            height: 180px;
+            top: 60px;
+            left: 60px;
+            animation-duration: 6s;
+        }
+
+        .center-core {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            top: 100px;
+            left: 100px;
+            background: radial-gradient(circle, #ffae00, #ff6a00);
+            border-radius: 50%;
+            box-shadow: 0 0 50px #ffae00, 0 0 100px #ff6a00;
+            transition: 0.3s ease;
+        }
+
+        .listening .center-core {
+            transform: scale(1.3);
+            box-shadow: 0 0 80px #ffae00, 0 0 150px #ff6a00;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        button {
+            margin-top: 50px;
+            background: transparent;
+            border: 2px solid #ffae00;
+            padding: 12px 35px;
+            color: #ffae00;
+            font-size: 16px;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #ffae00;
+            color: #000;
+            box-shadow: 0 0 20px #ffae00;
+        }
+
+        /* ======= TERMINAL ======= */
+
+        .terminal-panel {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 35%;
+            height: 100%;
+            background: #000;
+            border-left: 2px solid #00ff00;
+            padding: 20px;
+            overflow-y: auto;
+            font-family: "Courier New", monospace;
+            font-size: 14px;
+            color: #00ff00;
+            box-shadow: inset 0 0 25px #00ff00;
+            line-height: 1.6;
+        }
+
+        .terminal-line {
+            margin-bottom: 10px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="core-wrapper" id="aiCore">
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="center-core"></div>
+    </div>
+
+    <button onclick="startListening()">INITIALIZE</button>
+
+</div>
+
+<!-- Right Terminal -->
+<div class="terminal-panel" id="terminalPanel"></div>
+
+<script>
+
+function appendLine(text) {
+    const panel = document.getElementById("terminalPanel");
+
+    const line = document.createElement("div");
+    line.className = "terminal-line";
+    line.innerText = text;
+
+    panel.appendChild(line);
+    panel.scrollTop = panel.scrollHeight;
+}
+
+function startListening() {
+
+    const wrapper = document.getElementById("aiCore");
+    wrapper.classList.add("listening");
+
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = "en-US";
+    recognition.start();
+
+    recognition.onresult = function(event) {
+
+        const text = event.results[0][0].transcript;
+
+        appendLine("USER: " + text);
+
+        fetch("/api/voice/process-text", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: text })
+        })
+        .then(response => response.json())
+        .then(data => {
+            appendLine("NOVACORE: " + data.message);
+        });
+
+        wrapper.classList.remove("listening");
+    };
+
+    recognition.onerror = function() {
+        wrapper.classList.remove("listening");
+    };
+}
+
+</script>
+
+</body>
+</html>

@@ -2,6 +2,6 @@ namespace NovaCore.Models.Response
 {
     public class VoiceResponse
     {
-        public string Message { get; set; }
+        public string? Message { get; set; }
     }
 }

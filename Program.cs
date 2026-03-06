@@ -1,10 +1,13 @@
 using NovaCore.Services.Interfaces;
 using NovaCore.Services.Implementations;
+using NovaCore.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHttpClient();
 builder.Services.AddControllers();
+builder.Services.AddScoped<IChatGptService, ChatGptService>();
 builder.Services.AddScoped<IVoiceService, VoiceService>();
 
 // Add services to the container.

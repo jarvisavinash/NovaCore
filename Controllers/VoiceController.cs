@@ -16,10 +16,17 @@ namespace NovaCore.Controllers
         }
 
         [HttpPost("process-text")]
-        public IActionResult ProcessText([FromBody] VoiceRequest request)
+        public async Task<IActionResult> ProcessText([FromBody] VoiceRequest request)
         {
-            var response = _voiceService.ProcessText(request);
-            return Ok(response);
+            try
+            {
+                var response = await _voiceService.ProcessText(request);
+                return Ok(response);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }

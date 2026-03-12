@@ -5,6 +5,7 @@ using NovaCore.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors();
 builder.Services.AddHttpClient();
 builder.Services.AddControllers();
 builder.Services.AddScoped<IChatGptService, ChatGptService>();
@@ -16,6 +17,12 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+app.UseCors(policy => policy  // 👈 add this
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+);
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -23,11 +30,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthorization();
-
 app.UseDefaultFiles();
 app.UseStaticFiles();
-
-app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();
